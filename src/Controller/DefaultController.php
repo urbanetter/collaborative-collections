@@ -27,33 +27,35 @@ class DefaultController extends Controller
     private function getDefaultData()
     {
         $collectionA = [
-            [
-                'title' => 'Artikel A',
-                'lead' => 'Bla bla bla',
-            ],
-            [
-                'title' => 'Artikel B',
-                'lead' => 'Da steht was interessantes',
-            ],
-            [
-                'title' => 'Artikel C',
-                'lead' => 'Judihui, der beste Artikel',
-            ],
+            'id' => 'colA',
+            'items' => [
+                [
+                    'title' => 'Artikel A',
+                    'lead' => 'Bla bla bla',
+                ],
+                [
+                    'title' => 'Artikel B',
+                    'lead' => 'Da steht was interessantes',
+                ],
+                [
+                    'title' => 'Artikel C',
+                    'lead' => 'Judihui, der beste Artikel',
+                ],
+            ]
         ];
 
         $collectionB = [
-            [
-                'title' => 'Artikel X',
-                'lead' => 'Bla bla bla',
-            ],
-            [
-                'title' => 'Artikel Y',
-                'lead' => 'Da steht was interessantes',
-            ],
-            [
-                'title' => 'Artikel Z',
-                'lead' => 'Judihui, der beste Artikel',
-            ],
+            'id' => 'colB',
+            'items' => [
+                [
+                    'title' => 'Artikel X',
+                    'lead' => 'Bla bla bla',
+                ],
+                [
+                    'title' => 'Artikel Y',
+                    'lead' => 'Da steht was interessantes',
+                ],
+            ]
         ];
 
         return [$collectionA, $collectionB];

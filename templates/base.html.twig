@@ -2,13 +2,13 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
+        <title>{% block title %}Collaborative Collections{% endblock %}</title>
         <link rel="stylesheet" href="{{ asset('build/css/app.css') }}">    </head>
     <body>
     <nav class="navbar navbar-light bg-light">
         <a class="navbar-brand" href="/">Collaborative Collections</a>
         <span class="navbar-text" id="status">No Events</span>
-        <button class="btn btn-outline-success">Publish</button>
+        <button class="btn btn-outline-default" id="publish">Publish</button>
     </nav>
 
         <div class="container">
