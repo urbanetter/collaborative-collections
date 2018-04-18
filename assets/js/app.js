@@ -5,11 +5,15 @@ require('bootstrap');
 import Sortable from 'sortablejs/Sortable';
 
 let changes = [];
+window.changes = changes;
+
+let initialState = [];
 
 function fancyRenderFunction(data) {
+    $('#content').text('');
   data.forEach(function(collection) {
-    let div = $('<div class="card-deck collection">');
-    collection.forEach(function (item) {
+    let div = $('<div class="card-deck collection" id="' + collection.id + '">');
+    collection.items.forEach(function (item) {
       let card = $('<div class="card">');
       $('<div class="card-body">')
         .append('<h5 class="card-title">' + item.title + '</h5>')
@@ -22,6 +26,7 @@ function fancyRenderFunction(data) {
       onUpdate: function (event) {
         changes.push({
           type: 'reorder',
+          collection: collection.id,
           from: event.oldIndex,
           to: event.newIndex
         });
@@ -29,6 +34,12 @@ function fancyRenderFunction(data) {
       }
     });
   })
+}
+
+window.applyChange = function applyChange(change) {
+  if (change.type === 'reorder') {
+    $('#' + change.collection + ' div.card').eq(change.from).insertAfter($('#' + change.collection + ' div.card').eq(change.to));
+  }
 }
 
 function updateChangeLog() {
@@ -39,6 +50,17 @@ function updateChangeLog() {
 $(document).ready(function () {
   $.get('/data', function(data) {
     fancyRenderFunction(data);
+    initialState = data;
+  });
+
+  $('#publish').on('click', function (event) {
+      event.preventDefault();
+      if (!changes.length) return;
+
+      $.post('/publish', changes, function (data) {
+          initialState = data;
+
+      })
   })
 
 });
