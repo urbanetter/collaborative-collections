@@ -5,3 +5,7 @@ index:
 data:
     path: /data
     controller: App\Controller\DefaultController::data
+
+publish:
+    path: /publish
+    controller: App\Controller\DefaultController::publish

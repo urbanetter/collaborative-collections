@@ -14,7 +14,7 @@ function fancyRenderFunction(data) {
   data.forEach(function(collection) {
     let div = $('<div class="card-deck collection" id="' + collection.id + '">');
     collection.items.forEach(function (item) {
-      let card = $('<div class="card">');
+      let card = $('<div class="card" id="' + item.id + '">');
       $('<div class="card-body">')
         .append('<h5 class="card-title">' + item.title + '</h5>')
         .append('<p class="card-text">' + item.lead + '</p>')
@@ -27,8 +27,8 @@ function fancyRenderFunction(data) {
         changes.push({
           type: 'reorder',
           collection: collection.id,
-          from: event.oldIndex,
-          to: event.newIndex
+          item: $(event.item).attr('id'),
+          position: event.newIndex
         });
         updateChangeLog();
       }
@@ -38,7 +38,7 @@ function fancyRenderFunction(data) {
 
 window.applyChange = function applyChange(change) {
   if (change.type === 'reorder') {
-    $('#' + change.collection + ' div.card').eq(change.from).insertAfter($('#' + change.collection + ' div.card').eq(change.to));
+    $('#' + change.item).insertAfter($('#' + change.collection + ' div.card').eq(change.to));
   }
 }
 
@@ -57,10 +57,12 @@ $(document).ready(function () {
       event.preventDefault();
       if (!changes.length) return;
 
-      $.post('/publish', changes, function (data) {
-          initialState = data;
+      console.log(changes);
 
-      })
+      $.post('/publish', JSON.stringify(changes), function (data) {
+          initialState = data;
+          fancyRenderFunction(data);
+      }, 'json')
   })
 
 });
