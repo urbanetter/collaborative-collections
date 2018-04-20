@@ -6,6 +6,10 @@ data:
     path: /data
     controller: App\Controller\DefaultController::data
 
+version:
+    path: /version
+    controller: App\Controller\DefaultController::version
+
 publish:
     path: /publish
     controller: App\Controller\DefaultController::publish

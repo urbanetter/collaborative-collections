@@ -7,7 +7,9 @@ import Sortable from 'sortablejs/Sortable';
 let changes = [];
 window.changes = changes;
 
-let initialState = [];
+let initialState = {};
+
+let username = '';
 
 function fancyRenderFunction(data) {
     $('#content').text('');
@@ -38,7 +40,8 @@ function fancyRenderFunction(data) {
 
 window.applyChange = function applyChange(change) {
   if (change.type === 'reorder') {
-    $('#' + change.item).insertAfter($('#' + change.collection + ' div.card').eq(change.to));
+      console.log("$('#'" + change.item + ").insertAfter($('#" + change.collection + " div.card').eq(" + change.position + "));");
+      $('#' + change.item).insertAfter($('#' + change.collection + ' div.card').eq(change.position));
   }
 }
 
@@ -46,22 +49,61 @@ function updateChangeLog() {
   $('#status').text(changes.length + ' changes ready to publish.');
 }
 
+function checkForUpdates() {
+    $.get('/version', function(version) {
+        if (version.version > initialState.version.version) {
+            $('#version').text('New content from ' + version.user + ', click to apply');
+        } else {
+            $('#version').text('Published version from ' + initialState.version.user);
+        }
+    });
+}
+
 
 $(document).ready(function () {
   $.get('/data', function(data) {
-    fancyRenderFunction(data);
+    fancyRenderFunction(data.collections);
     initialState = data;
+  });
+
+  setInterval(function() {
+      checkForUpdates();
+  }, 1000);
+
+  $('#version').on('click', function (event) {
+      event.preventDefault();
+
+      $.get('/data', function(data) {
+          fancyRenderFunction(data.collections);
+          initialState = data;
+
+          changes.forEach(function (change) {
+              applyChange(change);
+          })
+      });
+
   });
 
   $('#publish').on('click', function (event) {
       event.preventDefault();
       if (!changes.length) return;
 
-      console.log(changes);
+      if (!username) {
+          username = prompt('Please enter username');
+      }
 
-      $.post('/publish', JSON.stringify(changes), function (data) {
+      const payload = {
+          version: {
+              user: username,
+              version: Date.now() / 1000
+          },
+          changes: changes
+      };
+
+      $.post('/publish', JSON.stringify(payload), function (data) {
           initialState = data;
-          fancyRenderFunction(data);
+          fancyRenderFunction(data.collections);
+          $('#status').text('Changes published.');
       }, 'json')
   })
 

@@ -15,21 +15,30 @@ class DefaultController extends Controller
 
     public function data()
     {
-        return new JsonResponse($this->getData());
+        $data = $this->getData();
+        return new JsonResponse($data);
     }
 
     public function publish(Request $request)
     {
-        $commands = json_decode($request->getContent(), true);
+        $payload = json_decode($request->getContent(), true);
         $data = $this->getData();
-        foreach ($commands as $command) {
-            $data = $this->applyCommand($data, $command);
+        foreach ($payload['changes'] as $change) {
+            $data['collections'] = $this->applyChange($data['collections'], $change);
         }
+
+        $data['version'] = $payload['version'];
 
         $fileName = $this->getParameter('kernel.project_dir') . '/data/data.json';
         file_put_contents($fileName, json_encode($data));
 
         return new JsonResponse($data);
+    }
+
+    public function version()
+    {
+        $data = $this->getData();
+        return new JsonResponse($data['version']);
     }
 
     private function getData()
@@ -42,18 +51,18 @@ class DefaultController extends Controller
         return json_decode(file_get_contents($fileName), true);
     }
 
-    private function applyCommand($data, $command)
+    private function applyChange($data, $change)
     {
-        if ($command['type'] === 'reorder') {
+        if ($change['type'] === 'reorder') {
             foreach ($data as $colId => $collection) {
-                if ($command['collection'] == $collection['id']) {
+                if ($change['collection'] == $collection['id']) {
                     // find index of item to reorder
-                    $reorderItems = array_values(array_filter($collection['items'], function ($item) use ($command) {
-                        return $item['id'] == $command['item'];
+                    $reorderItems = array_values(array_filter($collection['items'], function ($item) use ($change) {
+                        return $item['id'] == $change['item'];
                     }));
 
                     $out = array_splice($data[$colId]['items'], array_search($reorderItems[0], $collection['items']), 1);
-                    array_splice($data[$colId]['items'], $command['position'], 0, $out);
+                    array_splice($data[$colId]['items'], $change['position'], 0, $out);
                 }
             }
 
@@ -64,20 +73,20 @@ class DefaultController extends Controller
     private function getDefaultData()
     {
         $collectionA = [
-            'id' => 'urn:collection:1',
+            'id' => 'urn_collection_1',
             'items' => [
                 [
-                    'id' => 'urn:article:1',
+                    'id' => 'urn_article_1',
                     'title' => 'Artikel A',
                     'lead' => 'Bla bla bla',
                 ],
                 [
-                    'id' => 'urn:article:2',
+                    'id' => 'urn_article_2',
                     'title' => 'Artikel B',
                     'lead' => 'Da steht was interessantes',
                 ],
                 [
-                    'id' => 'urn:article:3',
+                    'id' => 'urn_article_3',
                     'title' => 'Artikel C',
                     'lead' => 'Judihui, der beste Artikel',
                 ],
@@ -85,21 +94,27 @@ class DefaultController extends Controller
         ];
 
         $collectionB = [
-            'id' => 'urn:collection:2',
+            'id' => 'urn_collection_2',
             'items' => [
                 [
-                    'id' => 'urn:article:10',
+                    'id' => 'urn_article_10',
                     'title' => 'Artikel X',
                     'lead' => 'Bla bla bla',
                 ],
                 [
-                    'id' => 'urn:article:11',
+                    'id' => 'urn_article_11',
                     'title' => 'Artikel Y',
                     'lead' => 'Da steht was interessantes',
                 ],
             ]
         ];
 
-        return [$collectionA, $collectionB];
+        return [
+            "version" => [
+                "user" => "Initial example data",
+                "version" => time(),
+            ],
+            "collections" => [$collectionA, $collectionB],
+        ];
     }
 }
