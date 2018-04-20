@@ -12,7 +12,7 @@ let initialState = {};
 let username = '';
 
 function fancyRenderFunction(data) {
-    $('#content').text('');
+  $('#content').text('');
   data.forEach(function(collection) {
     let div = $('<div class="card-deck collection" id="' + collection.id + '">');
     collection.items.forEach(function (item) {
@@ -40,13 +40,13 @@ function fancyRenderFunction(data) {
 
 window.applyChange = function applyChange(change) {
   if (change.type === 'reorder') {
-      console.log("$('#'" + change.item + ").insertAfter($('#" + change.collection + " div.card').eq(" + change.position + "));");
+      console.log('reorder ' + change.item + ' to order ' + change.position);
       $('#' + change.item).insertAfter($('#' + change.collection + ' div.card').eq(change.position));
   }
 }
 
 function updateChangeLog() {
-  $('#status').text(changes.length + ' changes ready to publish.');
+  $('#status').text(changes.length + ' changes.');
 }
 
 function checkForUpdates() {
@@ -74,8 +74,8 @@ $(document).ready(function () {
       event.preventDefault();
 
       $.get('/data', function(data) {
-          fancyRenderFunction(data.collections);
           initialState = data;
+          fancyRenderFunction(data.collections);
 
           changes.forEach(function (change) {
               applyChange(change);
@@ -104,6 +104,8 @@ $(document).ready(function () {
           initialState = data;
           fancyRenderFunction(data.collections);
           $('#status').text('Changes published.');
+          changes = [];
+          updateChangeLog();
       }, 'json')
   })
 
